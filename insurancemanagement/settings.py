@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'insurance',
     'customer',
+
+    # packages
+    'admin_soft.apps.AdminSoftDashboardConfig',
 ]
 
 MIDDLEWARE = [
