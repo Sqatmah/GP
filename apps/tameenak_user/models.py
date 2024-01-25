@@ -13,6 +13,18 @@ from apps.tameenak_user.constants import (
 )
 
 
+class Role(BaseModel):
+    role = models.CharField(
+        choices=ROLE_CHOICES,
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+
+    def __str__(self):
+        return f"{self.user.user.first_name} - {self.role}"
+
+
 class TameenakCustomer(BaseModel):
     user = models.OneToOneField(
         User,
@@ -113,19 +125,3 @@ class UserRequests(BaseModel):
 
     def __str__(self):
         return f"{self.user.user.first_name} - {self.request_status}"
-
-
-class Role(BaseModel):
-    user = models.ForeignKey(
-        TameenakCustomer,
-        on_delete=models.CASCADE
-    )
-    role = models.CharField(
-        choices=ROLE_CHOICES,
-        max_length=255,
-        blank=True,
-        null=True,
-    )
-
-    def __str__(self):
-        return f"{self.user.user.first_name} - {self.role}"
