@@ -39,8 +39,8 @@ class TameenakCustomer(BaseModel):
         on_delete=models.CASCADE
     )
     picture = models.ImageField(
-        upload_to='image/tameenak_user/profile_pic/',
-        default='image/tameenak_user/profile_pic/default_pic.png',
+        upload_to='image/tameenak_user/tameenak_customer/profile_pic/',
+        default='image/tameenak_user/default_pic.png',
         null=False,
         blank=False,
     )
@@ -61,21 +61,6 @@ class TameenakCustomer(BaseModel):
     gender = models.CharField(
         choices=GENDER,
         max_length=20,
-        blank=True,
-        null=True,
-    )
-    blood = models.CharField(
-        max_length=100,
-        blank=True,
-        null=True,
-    )
-    allergies = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-    )
-    medical_conditions = models.CharField(
-        max_length=255,
         blank=True,
         null=True,
     )
@@ -125,3 +110,52 @@ class UserRequests(BaseModel):
 
     def __str__(self):
         return f"{self.user.user.first_name} - {self.request_status}"
+
+
+class MedicalProfile(BaseModel):
+    user = models.ForeignKey(
+        TameenakCustomer,
+        on_delete=models.CASCADE
+    )
+    blood = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+    )
+    allergies = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    medical_conditions = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+    medical_history = models.TextField(
+        blank=True,
+        null=True,
+    )
+    current_medication = models.TextField(
+        blank=True,
+        null=True,
+    )
+    family_medical_history = models.TextField(
+        blank=True,
+        null=True,
+    )
+    lifestyle_factors = models.TextField(
+        blank=True,
+        null=True,
+    )
+    chronic_conditions = models.TextField(
+        blank=True,
+        null=True,
+    )
+    special_considerations = models.TextField(
+        blank=True,
+        null=True,
+    )
+
+    def __str__(self):
+        return f"{self.user.user.first_name}"

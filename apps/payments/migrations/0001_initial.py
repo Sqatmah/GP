@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ('amount', models.FloatField(blank=True, null=True)),
                 ('payment_date', models.DateField(blank=True, null=True)),
                 ('payment_status', models.CharField(blank=True, choices=[('paid', 'Paid'), ('unpaid', 'Unpaid')], max_length=50, null=True)),
-                ('customer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='tameenak_user.TameenakCustomer')),
+                ('tameenak_user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='tameenak_user.TameenakCustomer')),
                 ('insurance_company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='insurance_company.InsuranceCompany')),
             ],
             options={
