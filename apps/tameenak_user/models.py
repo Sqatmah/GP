@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
-from apps.insurance_company.models import InsuranceCompany
+from apps.insurance_company.models import (
+    InsuranceCompany,
+    InsuranceDegree
+)
 from apps.main.models import (
     BaseModel,
     Address
@@ -45,7 +48,9 @@ class TameenakCustomer(BaseModel):
         blank=False,
     )
     ex_subscription = models.BooleanField(
-        default=False
+        default=False,
+        null=False,
+        blank=False,
     )
     phone_number = models.CharField(
         max_length=50,
@@ -67,17 +72,6 @@ class TameenakCustomer(BaseModel):
 
     def __str__(self):
         return f"{self.user.first_name}"
-
-
-class InsuranceDegree(BaseModel):
-    insurance_degree = models.CharField(
-        max_length=255,
-        blank=True,
-        null=True,
-    )
-
-    def __str__(self):
-        return f"{self.insurance_degree}"
 
 
 class UserRequests(BaseModel):

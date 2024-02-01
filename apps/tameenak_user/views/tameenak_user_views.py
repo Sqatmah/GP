@@ -1,6 +1,9 @@
 from django.contrib.auth.models import Group
 from django.db.models import Q
 from django.http import HttpResponseRedirect
+from django.urls import reverse_lazy
+from django.views.generic.edit import FormView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import (
     TemplateView,
     ListView
@@ -9,9 +12,6 @@ from django.shortcuts import (
     render,
     redirect
 )
-from django.urls import reverse_lazy
-from django.views.generic.edit import FormView
-from django.contrib.auth.mixins import LoginRequiredMixin
 from apps.insurance_company.models import InsuranceCompany
 from apps.tameenak_user.models import UserRequests
 from apps.tameenak_user.constants import (
@@ -20,7 +20,8 @@ from apps.tameenak_user.constants import (
 )
 from apps.tameenak_user.forms import (
     BaseSignUpForm,
-    DashboardSearchForm
+    DashboardSearchForm,
+    MedicalProfileForm
 )
 
 
@@ -144,7 +145,7 @@ class MedicalProfile(LoginRequiredMixin, FormView):
         )
 
 
-class HistoryView(LoginRequiredMixin, ListView):
+class UserHistory(LoginRequiredMixin, ListView):
     template_name = 'history.html'
 
     def get_queryset(self):
