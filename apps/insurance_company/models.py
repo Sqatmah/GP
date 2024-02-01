@@ -50,4 +50,3 @@ class InsuranceCompany(BaseModel):
 
     def __str__(self):
         return f"{self.name} / {self.phone_number}"
-
