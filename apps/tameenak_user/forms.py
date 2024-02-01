@@ -73,7 +73,6 @@ class DashboardSearchForm(forms.Form):
             ('asc', 'Ascending'),
             ('desc', 'Descending')
         ),
-        required=False,
         widget=forms.Select(
             attrs={
                 "class": "form-control"
@@ -81,7 +80,6 @@ class DashboardSearchForm(forms.Form):
         ))
     insurance_degree = forms.ModelChoiceField(
         queryset=InsuranceDegree.objects.all(),
-        required=False,
         widget=forms.Select(
             attrs={
                 "class": "form-control"
@@ -89,7 +87,6 @@ class DashboardSearchForm(forms.Form):
         ))
     name = forms.CharField(
         max_length=100,
-        required=False,
         widget=forms.TextInput(
             attrs={
                 "placeholder": "Search",
@@ -102,71 +99,25 @@ class DashboardSearchForm(forms.Form):
 
 
 class MedicalProfileForm(forms.ModelForm):
-    blood = forms.CharField(
-        widget=forms.TextInput(
-            attrs={
-                "placeholder": "Blood",
-                "class": "form-control"
-            }
-        ))
-    allergies = forms.CharField(
-        widget=forms.TextInput(
-            attrs={
-                "placeholder": "Allergies",
-                "class": "form-control"
-            }
-        ))
-    medical_conditions = forms.CharField(
-        widget=forms.TextInput(
-            attrs={
-                "placeholder": "Medical Conditions",
-                "class": "form-control"
-            }
-        ))
-    medical_history = forms.Textarea(
-        widget=forms.Textarea(
-            attrs={
-                "placeholder": "Medical History",
-                "class": "form-control"
-            }
-        ))
-    current_medication = forms.Textarea(
-        widget=forms.Textarea(
-            attrs={
-                "placeholder": "Current Medication",
-                "class": "form-control"
-            }
-        ))
-    family_medical_history = forms.Textarea(
-        widget=forms.Textarea(
-            attrs={
-                "placeholder": "Family Medical History",
-                "class": "form-control"
-            }
-        ))
-    lifestyle_factors = forms.Textarea(
-        widget=forms.Textarea(
-            attrs={
-                "placeholder": "Lifestyle Factors",
-                "class": "form-control"
-            }
-        ))
-    chronic_conditions = forms.Textarea(
-        widget=forms.Textarea(
-            attrs={
-                "placeholder": "Chronic Conditions",
-                "class": "form-control"
-            }
-        ))
-    special_considerations = forms.Textarea(
-        widget=forms.Textarea(
-            attrs={
-                "placeholder": "Special Considerations",
-                "class": "form-control"
-            }
-        ))
-
     class Meta:
         model = MedicalProfile
         fields = '__all__'
-        exclude = 'user'
+        exclude = ('user', )
+
+    def __init__(self):
+        super().__init__()
+        self.fields['blood'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Blood'})
+        self.fields['allergies'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Allergies'})
+        self.fields['medical_conditions'].widget.attrs.update(
+            {'class': 'form-control', 'placeholder': 'Medical Conditions'})
+        self.fields['medical_history'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Medical History'})
+        self.fields['current_medication'].widget.attrs.update(
+            {'class': 'form-control', 'placeholder': 'Current Medication'})
+        self.fields['family_medical_history'].widget.attrs.update(
+            {'class': 'form-control', 'placeholder': 'Family Medical History'})
+        self.fields['lifestyle_factors'].widget.attrs.update(
+            {'class': 'form-control', 'placeholder': 'Lifestyle Factors'})
+        self.fields['chronic_conditions'].widget.attrs.update(
+            {'class': 'form-control', 'placeholder': 'Chronic Conditions'})
+        self.fields['special_considerations'].widget.attrs.update(
+            {'class': 'form-control', 'placeholder': 'Special Considerations'})

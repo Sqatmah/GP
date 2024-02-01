@@ -5,15 +5,30 @@ from apps.main.models import (
 )
 
 
+class InsuranceDegree(BaseModel):
+    degree_type = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+    )
+
+    def __str__(self):
+        return f"{self.insurance_degree}"
+
+
 class InsuranceCompany(BaseModel):
     address = models.OneToOneField(
         Address,
         on_delete=models.CASCADE
     )
+    insurance_degree = models.ForeignKey(
+        InsuranceDegree,
+        on_delete=models.CASCADE
+    )
     name = models.CharField(
         max_length=100,
-        null=False,
-        blank=False,
+        null=True,
+        blank=True,
     )
     logo = models.ImageField(
         upload_to='image/insurance_company/logo/',
@@ -49,4 +64,4 @@ class InsuranceCompany(BaseModel):
     )
 
     def __str__(self):
-        return f"{self.name} / {self.phone_number}"
+        return f"{self.name} / {self.insurance_degree}"
