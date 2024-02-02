@@ -27,7 +27,7 @@ def is_admin(user):
 
 @method_decorator(user_passes_test(is_admin), name='dispatch')
 class AdminDashboard(TemplateView):
-    template_name = 'tameenak_admin/admin_dashboard.html'
+    template_name = 'tameenak_user/tameenak_admin/admin_dashboard.html'
 
     def get(self, request, *args, **kwargs):
         total_tameenak_user = TameenakCustomer.objects.count()
@@ -46,7 +46,7 @@ class AdminDashboard(TemplateView):
 
 @method_decorator(user_passes_test(is_admin), name='dispatch')
 class AdminRequest(ListView):
-    template_name = 'tameenak_admin/admin_request.html'
+    template_name = 'tameenak_user/tameenak_admin/admin_request.html'
     model = UserRequests
     paginate_by = 10
 
@@ -83,7 +83,7 @@ class AdminRequest(ListView):
 @method_decorator(user_passes_test(is_admin), name='dispatch')
 class AdminAddress(FormView):
     form_class = AddressForm
-    template_name = 'tameenak_admin/admin_address.html'
+    template_name = 'tameenak_user/tameenak_admin/admin_address.html'
     success_url = reverse_lazy('tameenak_admin:dashboard')
 
     def form_valid(self, form):

@@ -30,13 +30,12 @@ from apps.tameenak_user.forms import (
 class SignUp(FormView):
     form_class = BaseSignUpForm
     template_name = 'register.html'
-    success_url = reverse_lazy('login')
+    success_url = reverse_lazy('main:custom_login')
     message = ''
     success = False
 
     def form_valid(self, form):
-        user = form.save()
-        user.groups.add(Group.objects.get(name='Tameenak Customer'))
+        form.save()
         self.message = 'User created - please <a href="/login">login</a>.'
         self.success = True
         return super().form_valid(form)
@@ -56,7 +55,7 @@ class SignUp(FormView):
 
 
 class UserDashboard(LoginRequiredMixin, ListView):
-    template_name = 'tameenak_user/user_dashboard.html'
+    template_name = 'tameenak_user/customer/customer_dashboard.html'
     paginate_by = 5
 
     def get_queryset(self):
@@ -104,7 +103,7 @@ class UserDashboard(LoginRequiredMixin, ListView):
 
 
 class RequestInsurance(LoginRequiredMixin, TemplateView):
-    template_name = 'tameenak_user/user_dashboard.html'
+    template_name = 'tameenak_user/customer/user_dashboard.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -125,7 +124,7 @@ class RequestInsurance(LoginRequiredMixin, TemplateView):
 
 class MedicalProfile(LoginRequiredMixin, FormView):
     form_class = MedicalProfileForm
-    template_name = 'tameenak_user/medical_profile.html'
+    template_name = 'tameenak_user/customer/medical_profile.html'
     message = ''
 
     def get(self, request, *args, **kwargs):
@@ -160,7 +159,7 @@ class MedicalProfile(LoginRequiredMixin, FormView):
 
 
 class UserHistory(LoginRequiredMixin, ListView):
-    template_name = 'tameenak_user/history.html'
+    template_name = 'tameenak_user/customer/user_history.html'
 
     def get_queryset(self):
         return UserRequests.objects.select_related(
@@ -187,7 +186,7 @@ class UserHistory(LoginRequiredMixin, ListView):
 
 
 class DownloadInsuranceDetails(LoginRequiredMixin, TemplateView):
-    template_name = 'tameenak_user/download_insurance_details.html'
+    template_name = 'tameenak_user/customer/download_insurance_details.html'
 
     def get(self, request, *args, **kwargs):
         insurance_company = InsuranceCompany.objects.get(id=self.kwargs['pk'])

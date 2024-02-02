@@ -28,16 +28,19 @@ class CustomLoginView(FormView):
         password = form.cleaned_data['password']
         user = authenticate(username=username, password=password)
         if user is None:
-            self.message = 'Invalid credentials'
+            self.message = 'The User Is Not Exist!! Please Try To Register First'
             return self.form_invalid(form)
+        if user.is_superuser:
+            return render(self.request, 'layouts/page-401.html')
 
-        login(self.request, user)
         self.message = 'Login successful'
+        login(self.request, user)
         if user.groups.filter(name='Tameenak Admin').exists():
             return redirect('tameenak_user:admin_dashboard')
         return redirect('tameenak_user:user_dashboard')
 
     def form_invalid(self, form):
+        self.message = 'Invalid username or password. Please try again.'
         return super().form_invalid(form)
 
     def get_context_data(self, **kwargs):
