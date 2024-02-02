@@ -13,7 +13,7 @@ class InsuranceDegree(BaseModel):
     )
 
     def __str__(self):
-        return f"{self.insurance_degree}"
+        return f"{self.degree_type}"
 
 
 class InsuranceCompany(BaseModel):

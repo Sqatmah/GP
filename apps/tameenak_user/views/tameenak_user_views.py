@@ -1,6 +1,7 @@
 from django.contrib.auth.models import Group
 from django.db.models import Q
 from django.http import HttpResponseRedirect
+from django.template.loader import get_template
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -12,6 +13,7 @@ from django.shortcuts import (
     render,
     redirect
 )
+from xhtml2pdf import pisa
 from apps.insurance_company.models import InsuranceCompany
 from apps.tameenak_user.models import UserRequests
 from apps.tameenak_user.constants import (
@@ -54,7 +56,8 @@ class SignUp(FormView):
 
 
 class UserDashboard(LoginRequiredMixin, ListView):
-    template_name = 'user_dashboard.html'
+    template_name = 'tameenak_user/user_dashboard.html'
+    paginate_by = 5
 
     def get_queryset(self):
         return InsuranceCompany.objects.all()
@@ -62,6 +65,7 @@ class UserDashboard(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['form'] = DashboardSearchForm()
+        context['queryset'] = self.get_queryset()
         return context
 
     def post(self, request, *args, **kwargs):
@@ -94,13 +98,13 @@ class UserDashboard(LoginRequiredMixin, ListView):
             request,
             self.template_name,
             {
-                'form': form
+                'form': form,
             }
         )
 
 
 class RequestInsurance(LoginRequiredMixin, TemplateView):
-    template_name = 'user_dashboard.html'
+    template_name = 'tameenak_user/user_dashboard.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -112,7 +116,7 @@ class RequestInsurance(LoginRequiredMixin, TemplateView):
         user_request = UserRequests.objects.get_or_create(
             user_id=request.user.id,
             insurance_company_id=insurance_company.id,
-            insurance_degree_id=request.POST['insurance_degree'],
+            insurance_degree_id=insurance_company.insurance_degree_id,
             request_status=WAITING
         )
         user_request.save()
@@ -121,20 +125,30 @@ class RequestInsurance(LoginRequiredMixin, TemplateView):
 
 class MedicalProfile(LoginRequiredMixin, FormView):
     form_class = MedicalProfileForm
-    template_name = 'medical_profile.html'
-    success_url = reverse_lazy('dashboard')
+    template_name = 'tameenak_user/medical_profile.html'
     message = ''
 
     def get(self, request, *args, **kwargs):
         form = MedicalProfileForm()
-        return render(request, self.template_name, {'form': form})
+        medical_query = MedicalProfile.objects.filter(user_id=request.user.id)
+        return render(
+            request,
+            self.template_name,
+            {
+                'form': form,
+                'medical_query': medical_query
+            }
+        )
+
+    def get_success_url(self):
+        return reverse_lazy('tameenak_admin:dashboard')
 
     def post(self, request, *args, **kwargs):
         form = MedicalProfileForm(request.POST)
         if form.is_valid():
             form.save()
             self.message = 'Medical Profile created.'
-            return HttpResponseRedirect(self.get_success_url())
+            return redirect(self.get_success_url())
         return render(
             request,
             self.template_name,
@@ -146,7 +160,7 @@ class MedicalProfile(LoginRequiredMixin, FormView):
 
 
 class UserHistory(LoginRequiredMixin, ListView):
-    template_name = 'history.html'
+    template_name = 'tameenak_user/history.html'
 
     def get_queryset(self):
         return UserRequests.objects.select_related(
@@ -170,3 +184,25 @@ class UserHistory(LoginRequiredMixin, ListView):
 
     def get(self, request, *args, **kwargs):
         return render(request, self.template_name, {'object_list': self.get_queryset()})
+
+
+class DownloadInsuranceDetails(LoginRequiredMixin, TemplateView):
+    template_name = 'tameenak_user/download_insurance_details.html'
+
+    def get(self, request, *args, **kwargs):
+        insurance_company = InsuranceCompany.objects.get(id=self.kwargs['pk'])
+
+        context = {'insurance_company': insurance_company}
+        template = get_template(self.template_name)
+        html = template.render(context)
+
+        # Create a PDF
+        pdf_response = HttpResponse(content_type='application/pdf')
+        pdf_response['Content-Disposition'] = f'attachment; filename="{insurance_company.name}_details.pdf"'
+
+        # Generate PDF from HTML content
+        pisa_status = pisa.CreatePDF(html, dest=pdf_response)
+        if pisa_status.err:
+            return HttpResponse('Error creating PDF', status=500)
+
+        return pdf_response

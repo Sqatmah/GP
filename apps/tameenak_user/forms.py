@@ -1,10 +1,12 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+from apps.main.models import Address
 from apps.tameenak_user.models import (
     TameenakCustomer,
     InsuranceDegree,
-    MedicalProfile
+    MedicalProfile,
+    UserRequests
 )
 
 
@@ -121,3 +123,26 @@ class MedicalProfileForm(forms.ModelForm):
             {'class': 'form-control', 'placeholder': 'Chronic Conditions'})
         self.fields['special_considerations'].widget.attrs.update(
             {'class': 'form-control', 'placeholder': 'Special Considerations'})
+
+
+class UserRequestForm(forms.ModelForm):
+    class Meta:
+        model = UserRequests
+        fields = '__all__'
+
+    def __init__(self):
+        super().__init__()
+        self.fields['rejection_reason'].widget.attrs.update({'class': 'form-control'})
+
+
+class AddressForm(forms.ModelForm):
+    class Meta:
+        model = Address
+        fields = '__all__'
+
+    def __init__(self):
+        super().__init__()
+        self.fields['country'].widget.attrs.update({'class': 'form-control'})
+        self.fields['city'].widget.attrs.update({'class': 'form-control'})
+        self.fields['street'].widget.attrs.update({'class': 'form-control'})
+        self.fields['postal_code'].widget.attrs.update({'class': 'form-control'})
