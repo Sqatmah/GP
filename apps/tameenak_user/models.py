@@ -83,10 +83,6 @@ class UserRequests(BaseModel):
         InsuranceCompany,
         on_delete=models.CASCADE
     )
-    insurance_degree = models.ForeignKey(
-        InsuranceDegree,
-        on_delete=models.CASCADE
-    )
     request_status = models.CharField(
         choices=REQUEST_STATUS,
         max_length=100,

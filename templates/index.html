@@ -1,4 +1,4 @@
-{% extends 'layouts/base.html' %}
+{% extends 'layouts/home_page_base.html' %}
 
 {% block title %} Home Page {% endblock title %}
 
@@ -6,14 +6,12 @@
 {% block stylesheets %}{% endblock stylesheets %}
 
 {% block content %}
-
-    <!-- Header -->
-    <div class="header bg-primary pb-6">
-        <div class="container-fluid">
-            
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="page-header">Home Page</h1>
+                <p>Welcome to the home page of the website.</p>
+            </div>
         </div>
-        {% include "includes/footer.html" %}
-
     </div>
-
 {% endblock content %}
