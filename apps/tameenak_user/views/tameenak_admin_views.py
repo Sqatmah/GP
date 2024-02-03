@@ -55,15 +55,23 @@ class AdminDashboard(ListView):
     def post(self, request, *args, **kwargs):
         form = UserRequestForm(request.POST)
         if form.is_valid():
-            reject_response = form.cleaned_data['reject_response']
-            UserRequests.objects.filter(
-                user_id=request.user.tameenakcustomer.id,
-            ).update(
-                request_status=REJECT,
-                reject_response=reject_response
-            )
+            action = request.POST.get('action')
+            user_id = request.POST.get('user_id')
+            rejection_reason = form.cleaned_data['rejection_reason']
+            if action == 'accept_request':
+                UserRequests.objects.filter(
+                    user_id=user_id
+                ).update(
+                    request_status=PAID
+                )
+            elif action == 'reject_request':
+                UserRequests.objects.filter(
+                    user_id=user_id
+                ).update(
+                    request_status=REJECT,
+                    rejection_reason=rejection_reason
+                )
             return redirect('tameenak_admin:admin_dashboard')
-        UserRequests.objects.update(request_status=PAID)
         return render(
             request,
             self.template_name,
