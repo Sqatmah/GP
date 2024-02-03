@@ -149,24 +149,13 @@ class MedicalProfileForm(forms.ModelForm):
             {'class': 'form-control', 'placeholder': 'Special Considerations'})
 
 
-class UserRequestForm(forms.Form):
-    rejection_reason = forms.CharField(
-        widget=forms.Textarea(
-            attrs={
-                "class": "form-control textarea",
-                "placeholder": "Rejection Reason",
-                "rows": 5,
-                "cols": 10
-            }
-        ),
-        required=False
-    )
+class UserRequestForm(forms.ModelForm):
+    class Meta:
+        model = UserRequests
+        fields = ('rejection_reason', )
 
     def __init__(self, *args, **kwargs):
         super(UserRequestForm, self).__init__(*args, **kwargs)
+        self.fields['rejection_reason'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Reject Response'})
 
-    def clean_rejection_reason(self):
-        rejection_reason = self.cleaned_data.get('rejection_reason')
-        if rejection_reason:
-            return rejection_reason
-        return None
+        self.fields['rejection_reason'].required = False
