@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import (
     authenticate,
     login,
@@ -36,7 +37,7 @@ class CustomLoginView(FormView):
         self.message = 'Login successful'
         login(self.request, user)
         if user.groups.filter(name='Tameenak Admin').exists():
-            return redirect('tameenak_user:admin_dashboard')
+            return redirect('tameenak_admin:admin_dashboard')
         return redirect('tameenak_user:user_dashboard')
 
     def form_invalid(self, form):
@@ -50,7 +51,8 @@ class CustomLoginView(FormView):
         return context
 
 
-class CustomLogoutView(LogoutView):
-    def post(self, request, *args, **kwargs):
-        logout(request)
-        return redirect('login')
+@login_required
+def logout_view(request):
+    logout(request)
+    return redirect('main:home')
+

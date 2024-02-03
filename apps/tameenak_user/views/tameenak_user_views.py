@@ -1,6 +1,10 @@
+import logging
 from django.contrib.auth.models import Group
 from django.db.models import Q
-from django.http import HttpResponseRedirect
+from django.http import (
+    HttpResponseRedirect,
+    HttpResponse
+)
 from django.template.loader import get_template
 from django.urls import reverse_lazy
 from django.views.generic.edit import FormView
@@ -15,13 +19,17 @@ from django.shortcuts import (
 )
 from xhtml2pdf import pisa
 from apps.insurance_company.models import InsuranceCompany
-from apps.tameenak_user.models import UserRequests
+from apps.tameenak_user.models import (
+    UserRequests,
+    MedicalProfile
+)
 from apps.tameenak_user.constants import (
     PAID,
     WAITING
 )
 from apps.tameenak_user.forms import (
     BaseSignUpForm,
+    TameenakCustomerForm,
     DashboardSearchForm,
     MedicalProfileForm
 )
@@ -35,13 +43,20 @@ class SignUp(FormView):
     success = False
 
     def form_valid(self, form):
-        form.save()
-        self.message = 'User created - please <a href="/login">login</a>.'
-        self.success = True
+        user = form.save()
+        tameenak_customer_form = TameenakCustomerForm(self.request.POST)
+        if tameenak_customer_form.is_valid():
+            tameenak_customer = tameenak_customer_form.save(commit=False)
+            tameenak_customer.user = user
+            tameenak_customer.save()
+            self.message = 'User created - please <a href="/login">login</a>.'
+            self.success = True
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['form'] = BaseSignUpForm()
+        context['tameenak_customer_form'] = TameenakCustomerForm()
         context['message'] = self.message
         context['success'] = self.success
         return context
@@ -49,14 +64,9 @@ class SignUp(FormView):
     def form_invalid(self, form):
         return super().form_invalid(form)
 
-    def get(self, request, *args, **kwargs):
-        form = BaseSignUpForm()
-        return render(request, self.template_name, {'form': form})
-
 
 class UserDashboard(LoginRequiredMixin, ListView):
     template_name = 'tameenak_user/customer/customer_dashboard.html'
-    paginate_by = 5
 
     def get_queryset(self):
         return InsuranceCompany.objects.all()
@@ -65,6 +75,9 @@ class UserDashboard(LoginRequiredMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['form'] = DashboardSearchForm()
         context['queryset'] = self.get_queryset()
+        context['user_requests'] = UserRequests.objects.filter(
+            user_id=self.request.user.tameenakcustomer.id,
+        ).exists()
         return context
 
     def post(self, request, *args, **kwargs):
@@ -80,7 +93,7 @@ class UserDashboard(LoginRequiredMixin, ListView):
             if name:
                 q &= Q(name__icontains=name)
             if insurance_degree:
-                q &= Q(insurance_degree__icontains=insurance_degree)
+                q &= Q(insurance_degree__degree_type__icontains=insurance_degree)
             queryset = queryset.filter(q)
 
             if order_by:
@@ -103,33 +116,34 @@ class UserDashboard(LoginRequiredMixin, ListView):
 
 
 class RequestInsurance(LoginRequiredMixin, TemplateView):
-    template_name = 'tameenak_user/customer/user_dashboard.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['insurance_company'] = InsuranceCompany.objects.get(id=self.kwargs['pk'])
-        return context
+    template_name = 'tameenak_user/customer/customer_dashboard.html'
 
     def post(self, request, *args, **kwargs):
         insurance_company = InsuranceCompany.objects.get(id=self.kwargs['pk'])
-        user_request = UserRequests.objects.get_or_create(
-            user_id=request.user.id,
-            insurance_company_id=insurance_company.id,
-            insurance_degree_id=insurance_company.insurance_degree_id,
-            request_status=WAITING
-        )
-        user_request.save()
-        return redirect('dashboard')
+        try:
+            user_request = UserRequests.objects.create(
+                user_id=request.user.tameenakcustomer.id,
+                insurance_company_id=insurance_company.id,
+                request_status=WAITING
+            )
+            user_request.save()
+        except Exception as e:
+            logging.error('************************ Error in RequestInsurance post method ************************')
+            logging.error(e)
+            logging.error('************************ Error in RequestInsurance post method ************************')
+        return redirect('tameenak_user:user_dashboard')
 
 
-class MedicalProfile(LoginRequiredMixin, FormView):
+class MedicalProfileView(LoginRequiredMixin, FormView):
     form_class = MedicalProfileForm
     template_name = 'tameenak_user/customer/medical_profile.html'
-    message = ''
 
     def get(self, request, *args, **kwargs):
         form = MedicalProfileForm()
-        medical_query = MedicalProfile.objects.filter(user_id=request.user.id)
+        try:
+            medical_query = MedicalProfile.objects.filter(user_id=request.user.tameenakcustomer.id).get()
+        except MedicalProfile.DoesNotExist:
+            medical_query = None
         return render(
             request,
             self.template_name,
@@ -140,20 +154,22 @@ class MedicalProfile(LoginRequiredMixin, FormView):
         )
 
     def get_success_url(self):
-        return reverse_lazy('tameenak_admin:dashboard')
+        return reverse_lazy('tameenak_user:user_dashboard')
 
     def post(self, request, *args, **kwargs):
         form = MedicalProfileForm(request.POST)
+        medical_profile, created = MedicalProfile.objects.get_or_create(user=request.user.tameenakcustomer)
         if form.is_valid():
-            form.save()
-            self.message = 'Medical Profile created.'
+            form = MedicalProfileForm(request.POST, instance=medical_profile)
+            medical_profile = form.save(commit=False)
+            medical_profile.user = request.user.tameenakcustomer
+            medical_profile.save()
             return redirect(self.get_success_url())
         return render(
             request,
             self.template_name,
             {
                 'form': form,
-                'message': self.message,
             }
         )
 
@@ -165,16 +181,15 @@ class UserHistory(LoginRequiredMixin, ListView):
         return UserRequests.objects.select_related(
             'insurance_company'
         ).filter(
-            user_id=self.request.user.id,
+            user_id=self.request.user.tameenakcustomer.id,
             request_status=PAID
-        ).values_list(
-            'insurance_company__logo',
+        ).values(
             'insurance_company__name',
-            'date_created',
+            'created_at',
             'insurance_company__address__city',
             'insurance_company__address__country',
             'insurance_company__address__street',
-            'insurance_company__address__zip_code',
+            'insurance_company__address__postal_code',
             'insurance_company__phone_number',
             'insurance_company__email',
             'insurance_company__website',
@@ -182,7 +197,13 @@ class UserHistory(LoginRequiredMixin, ListView):
         )
 
     def get(self, request, *args, **kwargs):
-        return render(request, self.template_name, {'object_list': self.get_queryset()})
+        return render(
+            request,
+            self.template_name,
+            {
+                'object_list': self.get_queryset()
+            }
+        )
 
 
 class DownloadInsuranceDetails(LoginRequiredMixin, TemplateView):

@@ -31,7 +31,7 @@ class InsuranceCompany(BaseModel):
         blank=True,
     )
     logo = models.ImageField(
-        upload_to='image/insurance_company/logo/',
+        upload_to='image/insurance_company/logo',
         default='image/insurance_company/logo/default_logo.png'
     )
     email = models.EmailField(

@@ -13,12 +13,18 @@ from django.shortcuts import (
     render,
     redirect,
 )
-from apps.tameenak_user.constants import WAITING
-from apps.tameenak_user.models import UserRequests
-from apps.tameenak_user.forms import (
-    UserRequestForm,
-    AddressForm
+from apps.tameenak_user.models import (
+    TameenakCustomer,
+    UserRequests
 )
+from apps.insurance_company.models import InsuranceCompany
+from apps.tameenak_user.constants import (
+    WAITING,
+    PAID,
+    REJECT
+)
+from apps.tameenak_user.models import UserRequests
+from apps.tameenak_user.forms import UserRequestForm
 
 
 def is_admin(user):
@@ -26,89 +32,39 @@ def is_admin(user):
 
 
 @method_decorator(user_passes_test(is_admin), name='dispatch')
-class AdminDashboard(TemplateView):
+class AdminDashboard(ListView):
     template_name = 'tameenak_user/tameenak_admin/admin_dashboard.html'
 
-    def get(self, request, *args, **kwargs):
-        total_tameenak_user = TameenakCustomer.objects.count()
-        total_insurance_company = InsuranceCompany.objects.count()
-        total_waiting_requests = UserRequests.objects.filter(status=WAITING).count()
-
-        return render(
-            request,
-            self.template_name, {
-                'total_tameenak_user': total_tameenak_user,
-                'total_insurance_company': total_insurance_company,
-                'total_waiting_requests': total_waiting_requests,
-            }
-        )
-
-
-@method_decorator(user_passes_test(is_admin), name='dispatch')
-class AdminRequest(ListView):
-    template_name = 'tameenak_user/tameenak_admin/admin_request.html'
-    model = UserRequests
-    paginate_by = 10
-
     def get_queryset(self):
-        return UserRequests.objects.select_related(
-            'insurance_company',
-            'user'
-        ).filter(
-            status=WAITING
-        ).order_by(
-            '-created_at'
+        return UserRequests.objects.filter(
+            request_status=WAITING
         )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        total_tameenak_user = TameenakCustomer.objects.count()
+        total_insurance_company = InsuranceCompany.objects.count()
+        total_waiting_requests = UserRequests.objects.filter(request_status=WAITING).count()
         context['form'] = UserRequestForm()
+        context['object_list'] = self.get_queryset()
+        context['total_tameenak_user'] = total_tameenak_user
+        context['total_insurance_company'] = total_insurance_company
+        context['total_waiting_requests'] = total_waiting_requests
         return context
 
     def post(self, request, *args, **kwargs):
         form = UserRequestForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('tameenak_admin:user_request')
+            reject_response = form.cleaned_data['reject_response']
+            UserRequests.objects.filter(
+                user_id=request.user.tameenakcustomer.id,
+            ).update(
+                request_status=REJECT,
+                reject_response=reject_response
+            )
+            return redirect('tameenak_admin:admin_dashboard')
+        UserRequests.objects.update(request_status=PAID)
         return render(
             request,
             self.template_name,
-            {
-                'form': form,
-                'object_list': self.get_queryset()
-            }
         )
-
-
-@method_decorator(user_passes_test(is_admin), name='dispatch')
-class AdminAddress(FormView):
-    form_class = AddressForm
-    template_name = 'tameenak_user/tameenak_admin/admin_address.html'
-    success_url = reverse_lazy('tameenak_admin:dashboard')
-
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        return super().form_invalid(form)
-
-    def get(self, request, *args, **kwargs):
-        form = AddressForm()
-        address_query = Address.objects.all()
-        return render(
-            request,
-            self.template_name,
-            {
-                'form': form,
-                'address_query': address_query
-            }
-        )
-
-
-
-
-
-
-
-

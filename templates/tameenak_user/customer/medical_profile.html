@@ -1,0 +1,117 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Medical Profile{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="text-center">Medical Profile</h1>
+                <p class="text-center">This is your medical profile. Please make sure to keep it updated.</p>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Profile</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>Personal Information</h4>
+                                <p><strong>Name:</strong> {{ request.user.username }}</p>
+                                <p><strong>Email:</strong> {{ user.email }}</p>
+                                <p><strong>Phone:</strong> {{ user.tameenakuser.phone_number }}</p>
+                                <p><strong>Address:</strong> {{ user.tameenakuser.address }}</p>
+                            </div>
+                            {% if medical_query %}
+                                <div class="col-md-6">
+                                    <h4>Medical Information</h4>
+                                    <p><strong>Blood Group:</strong> {{ medical_query.blood }}</p>
+                                    <p><strong>Allergies:</strong> {{ medical_query.allergies }}</p>
+                                    <p><strong>Medical Conditions:</strong> {{ medical_query.medical_conditions }}</p>
+                                    <p><strong>Medical History:</strong> {{ medical_query.medical_history }}</p>
+                                    <p><strong>Current Medication:</strong> {{ medical_query.current_medication }}</p>
+                                    <p><strong>Family Medical
+                                        History:</strong> {{ medical_query.family_medical_history }}
+                                    </p>
+                                    <p><strong>Lifestyle Factors:</strong> {{ medical_query.lifestyle_factors }}</p>
+                                    <p><strong>Chronic Conditions:</strong> {{ medical_query.chronic_conditions }}</p>
+                                    <p><strong>Special
+                                        Considerations:</strong> {{ medical_query.special_considerations }}
+                                    </p>
+                                </div>
+                            {% else %}
+                                <div class="col-md-6">
+                                    <h4>Medical Information</h4>
+                                    <p><strong>Blood Group:</strong> ------ </p>
+                                    <p><strong>Allergies:</strong> ------ </p>
+                                    <p><strong>Medical Conditions:</strong> ------ </p>
+                                    <p><strong>Medical History:</strong> ------ </p>
+                                    <p><strong>Current Medication:</strong> ------ </p>
+                                    <p><strong>Family Medical
+                                        History:</strong> ------
+                                    </p>
+                                    <p><strong>Lifestyle Factors:</strong> ------ </p>
+                                    <p><strong>Chronic Conditions:</strong> ------ </p>
+                                    <p><strong>Special
+                                        Considerations:</strong> ------
+                                    </p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-flex align-items-center justify-content-start">
+                            <!-- Button to trigger the modal -->
+                            {% if medical_query %}
+                                <button type="button" class="btn btn-outline-info" data-toggle="modal"
+                                        data-target="#myModal{{ request.user.id }}">
+                                    Edit Your Medical Profile
+                                </button>
+                            {% else %}
+                                <button type="button" class="btn btn-outline-info" data-toggle="modal"
+                                        data-target="#myModal{{ request.user.id }}">
+                                    Add a Medical Profile Information
+                                </button>
+                            {% endif %}
+                            <!-- Modal -->
+                            <form method="post" action="{% url 'tameenak_user:medical_profile' %}">
+                                {% csrf_token %}
+                                <div class="modal fade" id="myModal{{ request.user.id }}" tabindex="-1"
+                                     role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                {% if medical_query %}
+                                                    <h5 class="modal-title" id="myModalLabel">Editing Your Medical
+                                                        Profile </h5>
+                                                {% else %}
+                                                    <h5 class="modal-title" id="myModalLabel">Add a Medical
+                                                        Profile Information</h5>
+                                                {% endif %}
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                {{ form.as_p }}
+                                            </div>
+                                            <div class="modal-footer justify-content-between">
+                                                <!-- Close button -->
+                                                <button type="button" class="btn btn-secondary"
+                                                        data-dismiss="modal">Close
+                                                </button>
+                                                <button type="submit" class="btn btn-success">
+                                                    Save
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

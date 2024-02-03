@@ -1,0 +1,55 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %}Your History{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="text-center">Your History</h1>
+                <p class="text-center">Here you can view your insurance history.</p>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>History</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% if object_list %}
+                                {% for obj in object_list %}
+                                    <div class="col-md-6">
+                                        <h4>Insurance Company Information</h4>
+                                        <p><strong>Insurance Company
+                                            Name:</strong> {{ obj.insurance_company__name }}
+                                        </p>
+                                        <p><strong>Your Request:</strong> {{ obj.created_at }}</p>
+                                        <p><strong>Phone Number:</strong> {{ obj.insurance_company__phone_number }}</p>
+                                        <p><strong>Email:</strong> {{ obj.insurance_company__email }}</p>
+                                        <p><strong>Website:</strong> {{ obj.insurance_company__website }}</p>
+                                        <p><strong>Capital:</strong> {{ obj.insurance_company__capital }}
+                                        </p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <h4>Insurance Company Address</h4>
+                                        <p><strong>City:</strong> {{ obj.insurance_company__address__city }}
+                                        </p>
+                                        <p><strong>Country:</strong> {{ obj.insurance_company__address__country }}</p>
+                                        <p><strong>Street:</strong> {{ obj.insurance_company__address__street }}</p>
+                                        <p><strong>Email:</strong> {{ obj.insurance_company__email }}</p>
+                                        <p><strong>Postal
+                                            Code:</strong> {{ obj.insurance_company__address__postal_code }}
+                                        </p>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="col-md-12">
+                                    <p class="text-center">You have no insurance history.</p>
+                                </div>
+                            {% endif %}
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,20 @@
+<!-- templates/pdf_template.html -->
+<h1>{{ insurance_company.name }} Details</h1>
+<p>Name: {{ insurance_company.name }}</p>
+<p>Email: {{ insurance_company.email }}</p>
+<p>Phone Number: {{ insurance_company.phone_number }}</p>
+<p>Website: {{ insurance_company.website }}</p>
+<p>Capital: {{ insurance_company.capital }}</p>
+<p>Established Date: {{ insurance_company.established_date }}</p>
+<p>Description: {{ insurance_company.description }}</p>
+
+<!-- Include address details -->
+<h2>Address Details</h2>
+<p>Street: {{ insurance_company.address.street }}</p>
+<p>City: {{ insurance_company.address.city }}</p>
+<p>State: {{ insurance_company.address.state }}</p>
+<p>Zip Code: {{ insurance_company.address.zip_code }}</p>
+
+<!-- Include insurance degree details -->
+<h2>Insurance Degree Details</h2>
+<p>Degree Name: {{ insurance_company.insurance_degree.degree_name }}</p>

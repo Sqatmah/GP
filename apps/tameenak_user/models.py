@@ -25,7 +25,7 @@ class Role(BaseModel):
     )
 
     def __str__(self):
-        return f"{self.user.user.first_name} - {self.role}"
+        return f"{self.role}"
 
 
 class TameenakCustomer(BaseModel):
@@ -42,7 +42,7 @@ class TameenakCustomer(BaseModel):
         on_delete=models.CASCADE
     )
     picture = models.ImageField(
-        upload_to='image/tameenak_user/tameenak_customer/profile_pic/',
+        upload_to='image/tameenak_user/tameenak_customer/profile_pic',
         default='image/tameenak_user/default_pic.png',
         null=False,
         blank=False,

@@ -39,6 +39,16 @@
                                     </div>
                                     <span class="text-error">{{ field.errors }}</span>
                                 {% endfor %}
+                                {% for field in tameenak_customer_form %}
+                                    <div class="form-group col-lg-12">
+                                        <label class="form-control-label"
+                                               for="input-{{ field.name }}">{{ field.label }}</label>
+                                        <div class="input-group input-group-alternative mb-3">
+                                            {{ field }}
+                                        </div>
+                                    </div>
+                                    <span class="text-error">{{ field.errors }}</span>
+                                {% endfor %}
                                 <div class="row my-4">
                                     <div class="col-12">
                                         <div class="custom-control custom-control-alternative custom-checkbox">
