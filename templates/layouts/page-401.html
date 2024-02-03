@@ -1,6 +1,6 @@
 {% extends 'layouts/home_page_base.html' %}
 
-{% block title %} Error 404 {% endblock title %}
+{% block title %} Error 401 {% endblock title %}
 
 <!-- Specific CSS goes HERE -->
 {% block stylesheets %}{% endblock stylesheets %}
@@ -15,11 +15,11 @@
             <div class="card-header bg-transparent pb-5">
 
               <div class="text-muted text-center mt-2 mb-3">
-                Oups! Error 404      
+                Oups! Error 401      
               </div>
 
               <div class="text-center mb-4">
-                Page not found - <a href="{% url 'main:home' %}" class="btn-outline-info">Home</a>
+                Unauthorized - <a href="{% url 'main:custom_login' %}" class="btn-outline-info">Login</a>
               </div>
 
             </div>

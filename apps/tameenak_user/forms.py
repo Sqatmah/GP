@@ -40,6 +40,7 @@ class BaseSignUpForm(UserCreationForm):
             }
         ))
     password1 = forms.CharField(
+        label='Password',
         widget=forms.PasswordInput(
             attrs={
                 "placeholder": "Password",
@@ -47,6 +48,7 @@ class BaseSignUpForm(UserCreationForm):
             }
         ))
     password2 = forms.CharField(
+        label='Password check',
         widget=forms.PasswordInput(
             attrs={
                 "placeholder": "Password check",
@@ -69,8 +71,32 @@ class BaseSignUpForm(UserCreationForm):
         }
 
 
+class TameenakCustomerForm(forms.ModelForm):
+    ex_subscription = forms.TypedChoiceField(
+        choices=((True, 'Yes'), (False, 'No')),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        coerce=lambda x: x == 'True',
+        label='Do you have an existing subscription?',
+        initial=False,
+    )
+
+    class Meta:
+        model = TameenakCustomer
+        fields = '__all__'
+        exclude = ('user', 'is_active', 'customer_status')
+
+    def __init__(self, *args, **kwargs):
+        super(TameenakCustomerForm, self).__init__(*args, **kwargs)
+        self.fields['phone_number'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Phone'})
+        self.fields['address'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Address'})
+        self.fields['role'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Role'})
+        self.fields['picture'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Picture'})
+        self.fields['gender'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Gender'})
+
+
 class DashboardSearchForm(forms.Form):
     order_by = forms.ChoiceField(
+        required=False,
         choices=(
             ('asc', 'Ascending'),
             ('desc', 'Descending')
@@ -81,13 +107,11 @@ class DashboardSearchForm(forms.Form):
             }
         ))
     insurance_degree = forms.ModelChoiceField(
+        required=False,
         queryset=InsuranceDegree.objects.all(),
-        widget=forms.Select(
-            attrs={
-                "class": "form-control"
-            }
-        ))
+    )
     name = forms.CharField(
+        required=False,
         max_length=100,
         widget=forms.TextInput(
             attrs={
@@ -104,10 +128,10 @@ class MedicalProfileForm(forms.ModelForm):
     class Meta:
         model = MedicalProfile
         fields = '__all__'
-        exclude = ('user', )
+        exclude = ('is_active', 'user')
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super(MedicalProfileForm, self).__init__(*args, **kwargs)
         self.fields['blood'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Blood'})
         self.fields['allergies'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Allergies'})
         self.fields['medical_conditions'].widget.attrs.update(
@@ -125,24 +149,24 @@ class MedicalProfileForm(forms.ModelForm):
             {'class': 'form-control', 'placeholder': 'Special Considerations'})
 
 
-class UserRequestForm(forms.ModelForm):
-    class Meta:
-        model = UserRequests
-        fields = '__all__'
+class UserRequestForm(forms.Form):
+    rejection_reason = forms.CharField(
+        widget=forms.Textarea(
+            attrs={
+                "class": "form-control textarea",
+                "placeholder": "Rejection Reason",
+                "rows": 5,
+                "cols": 10
+            }
+        ),
+        required=False
+    )
 
-    def __init__(self):
-        super().__init__()
-        self.fields['rejection_reason'].widget.attrs.update({'class': 'form-control'})
+    def __init__(self, *args, **kwargs):
+        super(UserRequestForm, self).__init__(*args, **kwargs)
 
-
-class AddressForm(forms.ModelForm):
-    class Meta:
-        model = Address
-        fields = '__all__'
-
-    def __init__(self):
-        super().__init__()
-        self.fields['country'].widget.attrs.update({'class': 'form-control'})
-        self.fields['city'].widget.attrs.update({'class': 'form-control'})
-        self.fields['street'].widget.attrs.update({'class': 'form-control'})
-        self.fields['postal_code'].widget.attrs.update({'class': 'form-control'})
+    def clean_rejection_reason(self):
+        rejection_reason = self.cleaned_data.get('rejection_reason')
+        if rejection_reason:
+            return rejection_reason
+        return None

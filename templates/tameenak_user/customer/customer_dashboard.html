@@ -1,7 +1,187 @@
 {% extends 'layouts/base.html' %}
-
 {% block content %}
+    <style>
+        /* Add custom styling for the select element */
+        .custom-select-rounded {
+            border-radius: 20px; /* Adjust the border-radius as needed */
+            padding: 0.375rem 1.75rem; /* Adjust padding as needed */
+            background-color: #f8f9fa; /* Adjust background color as needed */
+            border: 1px solid #ced4da; /* Adjust border color as needed */
+        }
+    </style>
+    <div class="header bg-gradient-info pb-6">
+        <div class="container-fluid">
+            <div class="header-body">
+                <div class="row align-items-center py-4">
+                    <div class="col-lg-6 col-7">
+                        <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
+                            <!-- Search form -->
+                            <form class="navbar-search navbar-search-light form-inline mr-sm-3" id="navbar-search-main"
+                                  method="post">
+                                {% csrf_token %}
+                                <div class="form-group mb-0">
+                                    <div class="input-group input-group-alternative input-group-merge">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                        </div>
+                                        {{ form.name }}
+                                    </div>
+                                    <div class="input-group ml-3">
+                                        <div class="input-group-prepend">
+                                            <label class="input-group-text" for="insurance_degree">Insurance
+                                                Degree</label>
+                                        </div>
+                                        <select class="custom-select custom-select-rounded" id="insurance_degree"
+                                                name="insurance_degree">
+                                            <option selected>Choose...</option>
+                                            {% for degree in form.insurance_degree.field.queryset %}
+                                                <option value="{{ degree.pk }}">{{ degree }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="input-group ml-3">
+                                        <div class="input-group-prepend ml-3">
+                                            <label class="input-group-text" for="order_by">Order By</label>
+                                        </div>
+                                        <select class="custom-select custom-select-rounded" id="order_by"
+                                                name="order_by">
+                                            <option value="asc">Ascending</option>
+                                            <option value="desc">Descending</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-5 text-right">
+                                    <button type="submit" class="btn btn-dark mt-4">Search</button>
+                                </div>
+                            </form>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page content -->
+    <div class="container-fluid mt--6">
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <!-- Card header -->
+                    <div class="card-header border-0">
+                        <h3 class="mb-0">Insurance companies</h3>
+                    </div>
+                    <!-- Light table -->
+                    <div class="table-responsive">
+                        <table class="table align-items-center table-flush">
+                            <thead class="thead-light">
+                            <tr>
+                                <th scope="col" class="sort" data-sort="name">Name</th>
+                                <th scope="col" class="sort" data-sort="insurance_degree">Insurance Degree</th>
+                                <th scope="col" class="sort" data-sort="email">email</th>
+                                <th scope="col" class="sort" data-sort="phone_number">Phone Number</th>
+                                <th scope="col" class="sort" data-sort="website">website</th>
+                                <th scope="col" class="sort" data-sort="capital">capital</th>
+                                <th scope="col" class="sort" data-sort="More"></th>
+                            </tr>
+                            </thead>
+                            <tbody class="list">
+                            <tr>
+                                {% for query in queryset %}
+                                    <th scope="row">
+                                        <div class="media align-items-center">
+                                            <a href="#" class="avatar rounded-circle mr-3">
+                                                <img alt="Image placeholder"
+                                                     src={{ query.logo.url }}>
+                                            </a>
+                                            <div class="media-body">
+                                                <span class="name mb-0 text-sm">{{ query.name }}</span>
+                                            </div>
+                                        </div>
+                                    </th>
+                                    <td class="budget">
+                                        {{ query.insurance_degree }}
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-dot mr-4">
+                                            <i class="bg-warning"></i>
+                                            {{ query.email }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <span class="completion">{{ query.phone_number }}</span>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <span class="completion mr-2">{{ query.website }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="text-right">
+                                        <div class="d-flex align-items-center justify-content-start">
+                                            {{ query.capital }}
+                                        </div>
+                                    </td>
+                                    <td class="text-right">
+                                        <div class="d-flex align-items-center justify-content-start">
+                                            <!-- Button to trigger the modal -->
+                                            <button type="button" class="btn btn-outline-info" data-toggle="modal"
+                                                    data-target="#myModal{{ query.id }}">
+                                                More
+                                            </button>
 
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="myModal{{ query.id }}" tabindex="-1"
+                                                 role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="myModalLabel">Details
+                                                                for {{ query.name }}</h5>
+                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                    aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <!-- Description -->
+                                                            <div class="d-flex align-items-center justify-content-start">
+                                                                {{ query.description }}                                                                
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer justify-content-between">
+                                                            <!-- Close button -->
+                                                            <button type="button" class="btn btn-secondary"
+                                                                    data-dismiss="modal">Close
+                                                            </button>
+                                                            {% if not user_requests %}
+                                                                <form action="{% url 'tameenak_user:request_insurance' query.id %}"
+                                                                      method="post">
+                                                                    {% csrf_token %}
+                                                                    <button type="submit" class="btn btn-info"
+                                                                            id="submitBtn{{ query.id }}">Apply Now
+                                                                    </button>
+                                                                </form>
+                                                            {% endif %}
+                                                            <form method="post"
+                                                                  action="{% url 'tameenak_user:download_insurance_details' query.id %}">
+                                                                {% csrf_token %}
+                                                                <button type="submit" class="btn btn-success"
+                                                                        id="downloadBtn{{ query.id }}">Download the Info
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
-
-
