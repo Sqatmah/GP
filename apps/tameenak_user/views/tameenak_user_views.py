@@ -62,6 +62,9 @@ class SignUp(FormView):
         return context
 
     def form_invalid(self, form):
+        logging.error('************************ Error in SignUp form_invalid method ************************')
+        logging.error(form.errors)
+        logging.error('************************ Error in SignUp form_invalid method ************************')
         return super().form_invalid(form)
 
 
