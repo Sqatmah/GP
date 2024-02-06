@@ -38,7 +38,7 @@ class CustomLoginView(FormView):
         login(self.request, user)
         if user.groups.filter(name='Tameenak Admin').exists():
             return redirect('tameenak_admin:admin_dashboard')
-        return redirect('tameenak_user:user_dashboard')
+        return redirect('tameenak_user:customer_dashboard')
 
     def form_invalid(self, form):
         self.message = 'Invalid username or password. Please try again.'
