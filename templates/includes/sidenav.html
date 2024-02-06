@@ -2,9 +2,16 @@
     <div class="scrollbar-inner">
         <!-- Brand -->
         <div class="sidenav-header  align-items-center">
-            <a class="navbar-brand" href="/">
-                <h1 class="text-info font-weight-bold pt-3">Tameenak</h1>
-            </a>
+            {% if request.user.is_authenticated and "Tameenak Admin" in request.user.groups.all|join:" " %}
+                <a class="navbar-brand" href="{% url 'tameenak_admin:admin_dashboard'%}">
+                    <h1 class="text-info font-weight-bold pt-3">Tameenak</h1>
+                </a>
+            {% else %}
+                <a class="navbar-brand" href="{% url 'tameenak_user:user_dashboard'%}">
+                    <h1 class="text-info font-weight-bold pt-3">Tameenak</h1>
+                </a>
+            {% endif %}
+
         </div>
         <div class="navbar-inner">
             <!-- Collapse -->
@@ -12,35 +19,35 @@
                 <!-- Nav items -->
                 <ul class="navbar-nav">
                     {% if "Tameenak Admin" in request.user.groups.all|join:" " %}
-                        <li class="nav-item">
-                            <a class="nav-link {% if 'dashboard' in request.path %} active {% endif %}"
-                               href="{% url "tameenak_admin:admin_dashboard" %}">
-                                <i class="ni ni-tv-2 text-primary"></i>
-                                <span class="nav-link-text">Dashboard</span>
-                            </a>
-                        </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'dashboard' in request.path %} active {% endif %}"
+                           href="{% url 'tameenak_admin:admin_dashboard' %}">
+                        <i class="ni ni-tv-2 text-primary"></i>
+                        <span class="nav-link-text">Dashboard</span>
+                        </a>
+                    </li>
                     {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link {% if 'dashboard' in request.path %} active {% endif %}"
-                               href="{% url "tameenak_user:user_dashboard" %}">
-                                <i class="ni ni-tv-2 text-primary"></i>
-                                <span class="nav-link-text">Dashboard</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if 'medical-profile' in request.path %} active {% endif %}"
-                               href="{% url "tameenak_user:medical_profile" %}">
-                                <i class="fa fa-id-card text-info"></i>
-                                <span class="nav-link-text">Medical Profile</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if 'user-history' in request.path %} active {% endif %}"
-                               href="{% url 'tameenak_user:user_history' %}">
-                                <i class="fa fa-history text-primary"></i>
-                                <span class="nav-link-text">Your History</span>
-                            </a>
-                        </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'dashboard' in request.path %} active {% endif %}"
+                           href="{% url 'tameenak_user:user_dashboard' %}">
+                        <i class="ni ni-tv-2 text-primary"></i>
+                        <span class="nav-link-text">Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'medical-profile' in request.path %} active {% endif %}"
+                           href="{% url 'tameenak_user:medical_profile' %}">
+                        <i class="fa fa-id-card text-info"></i>
+                        <span class="nav-link-text">Medical Profile</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'user-history' in request.path %} active {% endif %}"
+                           href="{% url 'tameenak_user:user_history' %}">
+                            <i class="fa fa-history text-primary"></i>
+                            <span class="nav-link-text">Your History</span>
+                        </a>
+                    </li>
                     {% endif %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'main:logout' %}">
